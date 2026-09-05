@@ -28,7 +28,3 @@ dependencies {
 }
 
 kotlin { jvmToolchain(17) }
-
-tasks.named("shadowJar") {
-    archiveClassifier.set("all")
-}
