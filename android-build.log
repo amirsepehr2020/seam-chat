@@ -7,142 +7,44 @@ Daemon will be stopped at the end of the build
 > Task :app:generateDebugBuildConfig
 > Task :app:checkDebugAarMetadata
 > Task :app:processDebugNavigationResources
-> Task :app:generateDebugResValues
 > Task :app:compileDebugNavigationResources
+> Task :app:generateDebugResValues
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
-> Task :app:mergeDebugResources
+> Task :app:parseDebugLocalResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
-> Task :app:parseDebugLocalResources
+> Task :app:mergeDebugResources
 > Task :app:processDebugMainManifest
 > Task :app:processDebugManifest
-> Task :app:processDebugManifestForPackage
 > Task :app:javaPreCompileDebug
 > Task :app:mergeDebugShaders
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:mergeDebugAssets
-> Task :app:desugarDebugFileDependencies
-> Task :app:processDebugResources
+> Task :app:processDebugManifestForPackage
 > Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:mergeDebugJniLibFolders
 > Task :app:checkDebugDuplicateClasses
+> Task :app:mergeDebugNativeLibs
+> Task :app:processDebugResources
+> Task :app:mergeLibDexDebug
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so. Run with --info option to learn more.
+
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
 
 > Task :app:kspDebugKotlin
 w: [ksp] /home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/data/SeamDatabase.kt:13: Schema export directory was not provided to the annotation processor so Room cannot export the schema. You can either provide `room.schemaLocation` annotation processor argument by applying the Room Gradle plugin (id 'androidx.room') OR set exportSchema to false.
 
 > Task :app:mergeExtDexDebug
-> Task :app:mergeDebugJniLibFolders
-> Task :app:mergeLibDexDebug
-> Task :app:mergeDebugNativeLibs
-> Task :app:validateSigningDebug
-> Task :app:writeDebugAppMetadata
-> Task :app:writeDebugSigningConfigVersions
-
-> Task :app:stripDebugDebugSymbols
-Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so. Run with --info option to learn more.
 
 > Task :app:compileDebugKotlin FAILED
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/ChatScreen.kt:56:244 Unresolved reference 'Avatar'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/ChatScreen.kt:73:120 No value passed for parameter 'content'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/ChatScreen.kt:73:131 @Composable invocations can only happen from the context of a @Composable function
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/ChatScreen.kt:75:63 Syntax error: Incomplete code.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/ChatScreen.kt:75:76 Syntax error: Type expected.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/ChatScreen.kt:75:78 Syntax error: Expecting comma or ')'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/ChatScreen.kt:75:78 An explicit type is required on a value parameter.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/ChatScreen.kt:75:232 Unresolved reference 'content'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/HomeScreen.kt:43:67 Unresolved reference 'launch'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/HomeScreen.kt:43:87 Suspend function 'suspend fun logout(): Unit' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/auth/AuthScreen.kt:34:61 @Composable invocations can only happen from the context of a @Composable function
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/auth/AuthScreen.kt:60:21 Mixing named and positional arguments is not allowed unless the order of the arguments matches the order of the parameters.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:2 Function 'observeCachedMessages' without a body must be abstract.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:60 Syntax error: Expecting a '>'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:60 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:62 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:65 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:66 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:73 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:74 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:76 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:77 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:78 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:81 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:81 Function declaration must have a name.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:16:82 Unresolved reference 'it'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:10 Function 'refreshMessages' without a body must be abstract.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:52 Syntax error: Expecting a '>'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:52 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:54 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:65 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:65 Function declaration must have a name.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:76 Suspend function 'suspend fun messages(id: String): Response<List<MessageDto>>' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:85 Unresolved reference 'id'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:17:159 Suspend function 'suspend fun upsertAll(messages: List<MessageEntity>): Unit' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:10 Function 'sendMessage' without a body must be abstract.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:85 Syntax error: Expecting a '>'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:85 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:87 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:98 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:98 Function declaration must have a name.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:109 Suspend function 'suspend fun send(id: String, request: SendMessageRequest): Response<MessageDto>' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:114 Unresolved reference 'id'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:136 Unresolved reference 'body'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:141 Unresolved reference 'type'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:18:269 Suspend function 'suspend fun upsert(message: MessageEntity): Unit' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:10 Function 'reply' without a body must be abstract.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:86 Syntax error: Expecting a '>'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:86 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:88 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:99 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:99 Function declaration must have a name.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:110 Suspend function 'suspend fun reply(id: String, request: ReplyMessageRequest): Response<MessageDto>' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:116 Unresolved reference 'messageId'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:146 Unresolved reference 'body'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:151 Unresolved reference 'type'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:19:269 Suspend function 'suspend fun upsert(message: MessageEntity): Unit' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:10 Function 'uploadMedia' without a body must be abstract.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:73 Syntax error: Expecting a '>'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:73 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:75 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:86 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:86 Function declaration must have a name.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:161 Unresolved reference 'uri'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:209 Unresolved reference 'type'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:237 Unresolved reference 'uri'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:271 Unresolved reference 'uri'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:348 Unresolved reference 'type'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:446 Unresolved reference 'type'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:593 Suspend function 'suspend fun upload(file: MultipartBody.Part, type: RequestBody): Response<MediaUploadResponse>' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:20:605 Unresolved reference 'type'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:10 Function 'editMessage' without a body must be abstract.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:66 Syntax error: Expecting a '>'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:66 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:68 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:79 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:79 Function declaration must have a name.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:90 Suspend function 'suspend fun edit(id: String, request: EditMessageRequest): Response<MessageDto>' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:95 Unresolved reference 'id'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:117 Unresolved reference 'body'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:22:234 Suspend function 'suspend fun upsert(message: MessageEntity): Unit' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:23:10 Function 'deleteMessage' without a body must be abstract.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:23:50 Syntax error: Expecting a '>'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:23:50 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:23:52 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:23:63 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:23:63 Function declaration must have a name.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:23:74 Suspend function 'suspend fun delete(id: String): Response<ActionResponse>' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:23:81 Unresolved reference 'id'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:10 Function 'forwardMessage' without a body must be abstract.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:71 Syntax error: Expecting a '>'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:71 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:73 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:84 Syntax error: Expecting member declaration.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:84 Function declaration must have a name.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:95 Suspend function 'suspend fun forward(id: String, request: ForwardMessageRequest): Response<MessageDto>' can only be called from a coroutine or another suspend function.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:103 Unresolved reference 'id'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:128 Unresolved reference 'target'.
-e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatRepository.kt:24:250 Suspend function 'suspend fun upsert(message: MessageEntity): Unit' can only be called from a coroutine or another suspend function.
 e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatViewModel.kt:14:72 Property must be initialized or be abstract.
 e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatViewModel.kt:14:111 Syntax error: Expecting a '>'.
 e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/chat/ChatViewModel.kt:14:111 Syntax error: Property getter or setter expected.
@@ -192,7 +94,7 @@ e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/se
 e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/network/ConversationApi.kt:16:39 Unresolved reference 'ConversationDto'.
 e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/network/ConversationApi.kt:19:45 Unresolved reference 'CreateDirectConversationRequest'.
 e: file:///home/runner/work/seam-chat/seam-chat/app/src/main/java/amir/sepehr/seamchat/network/ConversationApi.kt:19:79 Unresolved reference 'ConversationDto'.
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/android_build-1788615296933.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/android_build-1788615802650.json
 
 FAILURE: Build failed with an exception.
 
@@ -207,5 +109,5 @@ Execution failed for task ':app:compileDebugKotlin'.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 2m 7s
+BUILD FAILED in 41s
 32 actionable tasks: 32 executed
