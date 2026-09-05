@@ -9,6 +9,7 @@ import android.widget.VideoView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,8 +64,7 @@ fun SeamChatConversationScreen(conversationId:String="demo",currentUserId:String
 
 @Composable private fun MessageBubble(message:MessageDto,mine:Boolean,onMedia:(MessageDto)->Unit,onReply:()->Unit,onDelete:()->Unit,onEdit:(String)->Unit,onReact:(String)->Unit,onUnreact:(String)->Unit){
  var menu by remember{mutableStateOf(false)};var editing by remember{mutableStateOf(false)};var editText by remember(message.body){mutableStateOf(message.body.orEmpty())}
- Row(Modifier.fillMaxWidth(),horizontalArrangement=if(mine)Arrangement.End else Arrangement.Start){Box{Surface(color=if(mine)Color(0xFF203A43)else Glass2,shape=if(mine)RoundedCornerShape(20.dp,20.dp,6.dp,20.dp)else RoundedCornerShape(20.dp,20.dp,20.dp,6.dp),modifier=Modifier.fillMaxWidth(.82f).clickable(enabled=message.type=="image"||message.type=="video"){onMedia(message)}.combinedClickable(onLongClick={menu=true},onClick={})){
-  Column(Modifier.padding(10.dp)){if(message.replyToMessageId!=null)Text("↩ Reply",color=Cyan,fontSize=10.sp);when(message.type){"image"->MediaTile(Icons.Default.Image,"Photo",Cyan);"video"->MediaTile(Icons.Default.VideoLibrary,"Video",Cyan);"audio"->MediaTile(Icons.Default.AudioFile,"Audio",Cyan);"file"->MediaTile(Icons.Default.InsertDriveFile,"File",Cyan);else->{if(editing){TextField(value=editText,onValueChange={editText=it},singleLine=true,modifier=Modifier.fillMaxWidth());Row{TextButton(onClick={onEdit(editText);editing=false}){Text("Save")};TextButton(onClick={onDelete){Text("Cancel")}}}else Text(message.body.orEmpty(),color=Color.White,fontSize=14.sp)}};Row(verticalAlignment=Alignment.CenterVertically,modifier=Modifier.align(Alignment.End)){Text(SimpleDateFormat("HH:mm",Locale.getDefault()).format(Date(message.createdAt)),color=Color.White.copy(.35f),fontSize=9.sp);if(message.editedAt!=null)Text(" · edited",color=Color.White.copy(.3f),fontSize=9.sp)}}}}
+ Row(Modifier.fillMaxWidth(),horizontalArrangement=if(mine)Arrangement.End else Arrangement.Start){Box{Surface(color=if(mine)Color(0xFF203A43)else Glass2,shape=if(mine)RoundedCornerShape(20.dp,20.dp,6.dp,20.dp)else RoundedCornerShape(20.dp,20.dp,20.dp,6.dp),modifier=Modifier.fillMaxWidth(.82f).combinedClickable(onClick={if(message.type=="image"||message.type=="video")onMedia(message)},onLongClick={menu=true})){Column(Modifier.padding(10.dp)){if(message.replyToMessageId!=null)Text("↩ Reply",color=Cyan,fontSize=10.sp);when(message.type){"image"->MediaTile(Icons.Default.Image,"Photo",Cyan);"video"->MediaTile(Icons.Default.VideoLibrary,"Video",Cyan);"audio"->MediaTile(Icons.Default.AudioFile,"Audio",Cyan);"file"->MediaTile(Icons.Default.InsertDriveFile,"File",Cyan);else->{if(editing){TextField(value=editText,onValueChange={editText=it},singleLine=true,modifier=Modifier.fillMaxWidth());Row{TextButton(onClick={onEdit(editText);editing=false}){Text("Save")};TextButton(onClick={editing=false}){Text("Cancel")}}}else Text(message.body.orEmpty(),color=Color.White,fontSize=14.sp)}};Row(verticalAlignment=Alignment.CenterVertically,modifier=Modifier.align(Alignment.End)){Text(SimpleDateFormat("HH:mm",Locale.getDefault()).format(Date(message.createdAt)),color=Color.White.copy(.35f),fontSize=9.sp);if(message.editedAt!=null)Text(" · edited",color=Color.White.copy(.3f),fontSize=9.sp)}}}}
  if(menu){MessageActionsDialog(message,mine,{menu=false;onReply()},{menu=false;editing=true},{menu=false;onDelete()},{menu=false;onReact("❤️")},{menu=false;onReact("👍")})}
  }}
 }
