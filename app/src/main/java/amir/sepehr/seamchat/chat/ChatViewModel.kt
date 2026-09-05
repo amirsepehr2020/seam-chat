@@ -21,6 +21,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     val sending: StateFlow<Boolean> = _sending.asStateFlow()
     private val _connected = MutableStateFlow(false)
     val connected: StateFlow<Boolean> = _connected.asStateFlow()
+    private val _typing = MutableStateFlow(false)
+    val typing: StateFlow<Boolean> = _typing.asStateFlow()
+    private val _onlineUsers = MutableStateFlow<Set<String>>(emptySet())
+    val onlineUsers: StateFlow<Set<String>> = _onlineUsers.asStateFlow()
+    private val _readMessageIds = MutableStateFlow<Set<String>>(emptySet())
+    val readMessageIds: StateFlow<Set<String>> = _readMessageIds.asStateFlow()
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
@@ -31,10 +37,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 _messages.value = cached.distinctBy(MessageDto::id).sortedBy(MessageDto::createdAt)
             }
         }
-        viewModelScope.launch {
-            repository.refreshMessages(conversationId)
-                .onFailure { _error.value = it.message }
-        }
+        viewModelScope.launch { repository.refreshMessages(conversationId).onFailure { _error.value = it.message } }
         connectRealtime(conversationId)
     }
 
@@ -44,10 +47,10 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             socket.connect(conversationId).collect { event ->
                 when (event) {
                     is SocketEvent.Connected -> _connected.value = event.value
-                    is SocketEvent.Message -> {
-                        repository.cache(event.value)
-                        _error.value = null
-                    }
+                    is SocketEvent.Message -> { repository.cache(event.value); _error.value = null }
+                    is SocketEvent.Typing -> _typing.value = event.value
+                    is SocketEvent.Presence -> _onlineUsers.value = if (event.online) _onlineUsers.value + event.userId else _onlineUsers.value - event.userId
+                    is SocketEvent.Read -> _readMessageIds.value = _readMessageIds.value + event.messageId
                     is SocketEvent.Failed -> _error.value = event.error.message
                 }
             }
@@ -58,17 +61,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         if (body.isBlank() || _sending.value) return
         viewModelScope.launch {
             _sending.value = true
-            repository.sendMessage(conversationId, body.trim())
-                .onSuccess { _error.value = null }
-                .onFailure { _error.value = it.message }
+            repository.sendMessage(conversationId, body.trim()).onFailure { _error.value = it.message }.onSuccess { _error.value = null }
             _sending.value = false
         }
     }
 
-    override fun onCleared() {
-        cacheJob?.cancel()
-        socketJob?.cancel()
-        socket.close()
-        super.onCleared()
-    }
+    fun setTyping(value: Boolean) { socket.setTyping(value) }
+    fun markRead(messageId: String) { socket.markRead(messageId) }
+
+    override fun onCleared() { cacheJob?.cancel(); socketJob?.cancel(); socket.close(); super.onCleared() }
 }
