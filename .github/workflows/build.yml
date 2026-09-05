@@ -27,14 +27,14 @@ jobs:
           set -o pipefail
           gradle :app:assembleDebug --no-daemon 2>&1 | tee android-build.log
       - name: Upload APK
-        if: steps.android_build.outcome == 'success'
+        if: steps.android_build.conclusion == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: seam-chat-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
       - name: Commit build log on failure
-        if: steps.android_build.outcome != 'success' && github.event_name == 'push'
+        if: steps.android_build.conclusion != 'success' && github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -42,7 +42,7 @@ jobs:
           git diff --cached --quiet || git commit -m "ci: capture Android build diagnostics [skip ci]"
           git push
       - name: Fail workflow when build failed
-        if: steps.android_build.outcome != 'success'
+        if: steps.android_build.conclusion != 'success'
         run: exit 1
 
   backend:
