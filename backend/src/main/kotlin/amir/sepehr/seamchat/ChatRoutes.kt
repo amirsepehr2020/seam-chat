@@ -23,18 +23,17 @@ class ChatRoutes(private val db: Database) {
             if (!db.isMember(id, auth.user.id)) return@get call.respond(HttpStatusCode.Forbidden, ErrorResponse("Not a conversation member"))
             call.respond(db.messages(id))
         }
-
         route.post("/api/v1/conversations/{id}/messages") {
             val auth = authFromCall(call, db) ?: return@post call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Unauthorized"))
             val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("Missing conversation id"))
             if (!db.isMember(id, auth.user.id)) return@post call.respond(HttpStatusCode.Forbidden, ErrorResponse("Not a conversation member"))
             val request = call.receive<SendMessageRequest>()
-            if (request.body.length !in 1..10000) return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("Message must be 1-10000 characters."))
-            val message = db.insertMessage(id, auth.user.id, request.body, request.type)
+            if (request.body.isBlank() || request.body.length > 10000) return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("Message must be 1-10000 characters."))
+            val type = request.type.lowercase().takeIf { it in setOf("text", "image", "video", "audio", "file") } ?: "text"
+            val message = db.insertMessage(id, auth.user.id, request.body.trim(), type)
             sockets[id]?.toList()?.forEach { session -> runCatching { session.sendSerialized(message) } }
             call.respond(HttpStatusCode.Created, message)
         }
-
         route.webSocket("/api/v1/realtime/{conversationId}") {
             val auth = authFromCall(call, db)
             val conversationId = call.parameters["conversationId"]
@@ -44,8 +43,15 @@ class ChatRoutes(private val db: Database) {
             val set = sockets.computeIfAbsent(conversationId) { ConcurrentHashMap.newKeySet() }
             set.add(this)
             try {
-                for (frame in incoming) if (frame is Frame.Text && frame.readText() == "ping") send("pong")
-            } finally { set.remove(this) }
+                for (frame in incoming) {
+                    if (frame is Frame.Text) {
+                        when (frame.readText()) { "ping" -> send("pong") }
+                    }
+                }
+            } finally {
+                set.remove(this)
+                if (set.isEmpty()) sockets.remove(conversationId, set)
+            }
         }
     }
 }
