@@ -7,9 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ConversationViewModel(
-    private val repository: ConversationRepository = ConversationRepository()
-) : ViewModel() {
+class ConversationViewModel(private val repository: ConversationRepository) : ViewModel() {
     private val _state = MutableStateFlow<ConversationListState>(ConversationListState.Loading)
     val state: StateFlow<ConversationListState> = _state.asStateFlow()
 
@@ -18,8 +16,25 @@ class ConversationViewModel(
     fun refresh() {
         viewModelScope.launch {
             _state.value = ConversationListState.Loading
-            runCatching { repository.observeConversations().collect { _state.value = ConversationListState.Ready(it) } }
-                .onFailure { _state.value = ConversationListState.Error(it.message ?: "Unable to load conversations") }
+            repository.observeConversations().collect { result ->
+                _state.value = result.fold(
+                    onSuccess = { conversations ->
+                        ConversationListState.Ready(
+                            conversations.map {
+                                ConversationPreview(
+                                    id = it.id,
+                                    title = it.title ?: it.otherUser?.displayName ?: it.otherUser?.username ?: "Conversation",
+                                    avatarLetter = (it.otherUser?.displayName ?: it.otherUser?.username ?: it.title ?: "S").firstOrNull()?.uppercase() ?: "S",
+                                    lastMessage = "",
+                                    timestamp = "",
+                                    online = false
+                                )
+                            }
+                        )
+                    },
+                    onFailure = { ConversationListState.Error(it.message ?: "Unable to load conversations") }
+                )
+            }
         }
     }
 }
