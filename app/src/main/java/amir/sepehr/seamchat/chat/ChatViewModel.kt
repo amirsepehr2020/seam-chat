@@ -17,7 +17,6 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val notifications = SeamNotificationCoordinator(application)
     private var socketJob: Job? = null
     private var cacheJob: Job? = null
-    private var activeConversationId: String? = null
 
     private val _messages = MutableStateFlow<List<MessageDto>>(emptyList())
     val messages: StateFlow<List<MessageDto>> = _messages.asStateFlow()
@@ -37,7 +36,6 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     val error: StateFlow<String?> = _error.asStateFlow()
 
     fun load(conversationId: String) {
-        activeConversationId = conversationId
         cacheJob?.cancel()
         cacheJob = viewModelScope.launch {
             repository.observeCachedMessages(conversationId).collect { cached ->
@@ -56,13 +54,11 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     is SocketEvent.Connected -> _connected.value = event.value
                     is SocketEvent.Message -> {
                         repository.cache(event.value)
-                        if (event.value.senderId != currentUserId()) {
-                            notifications.showMessage(
-                                conversationId.toLongOrNull() ?: conversationId.hashCode().toLong(),
-                                "New message",
-                                event.value.body.orEmpty().ifBlank { "New message" }
-                            )
-                        }
+                        notifications.showMessage(
+                            conversationId.toLongOrNull() ?: conversationId.hashCode().toLong(),
+                            "SEAM CHAT",
+                            event.value.body.orEmpty().ifBlank { "New message" }
+                        )
                         _error.value = null
                     }
                     is SocketEvent.Typing -> _typing.value = event.value
@@ -73,8 +69,6 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
-    private fun currentUserId(): String? = repository.currentUserId()
 
     fun send(conversationId: String, body: String, type: String = "text") {
         if (body.isBlank() || _sending.value) return
@@ -101,5 +95,5 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun setTyping(value: Boolean) { socket.setTyping(value) }
     fun markRead(messageId: String) { socket.markRead(messageId) }
 
-    override fun onCleared() { activeConversationId = null; cacheJob?.cancel(); socketJob?.cancel(); socket.close(); super.onCleared() }
+    override fun onCleared() { cacheJob?.cancel(); socketJob?.cancel(); socket.close(); super.onCleared() }
 }
