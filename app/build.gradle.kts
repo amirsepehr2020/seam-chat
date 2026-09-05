@@ -14,14 +14,14 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
+        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/\"")
     }
 
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
 }
 
 kotlin { jvmToolchain(17) }
-
 val composeBom = platform("androidx.compose:compose-bom:2025.08.01")
 
 dependencies {
