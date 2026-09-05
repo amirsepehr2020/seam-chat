@@ -25,5 +25,6 @@ fun Application.module() {
         get("/") { call.respond(mapOf("name" to "SEAM CHAT API", "version" to "v1", "status" to "online")) }
         AuthRoutes(db).register(this)
         ChatRoutes(db).register(this)
+        MediaRoutes(db).register(this)
     }
 }
