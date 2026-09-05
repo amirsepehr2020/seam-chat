@@ -3,6 +3,7 @@ package amir.sepehr.seamchat.network
 import android.content.Context
 import amir.sepehr.seamchat.BuildConfig
 import amir.sepehr.seamchat.chat.ChatApi
+import amir.sepehr.seamchat.chat.MediaApi
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -32,4 +33,5 @@ object ApiClient {
     fun auth(context: Context): AuthApi = retrofit(context).create(AuthApi::class.java)
     fun chat(context: Context): ChatApi = retrofit(context).create(ChatApi::class.java)
     fun conversations(context: Context): ConversationApi = retrofit(context).create(ConversationApi::class.java)
+    fun media(context: Context): MediaApi = retrofit(context).create(MediaApi::class.java)
 }
