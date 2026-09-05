@@ -22,6 +22,8 @@ android {
 }
 
 kotlin { jvmToolchain(17) }
+
+import org.gradle.kotlin.dsl.platform
 val composeBom = platform("androidx.compose:compose-bom:2025.08.01")
 
 dependencies {
