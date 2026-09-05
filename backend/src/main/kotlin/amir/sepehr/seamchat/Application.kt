@@ -17,6 +17,7 @@ fun main() {
 
 fun Application.module() {
     val db = Database()
+    seedInitialInvites()
     install(ContentNegotiation) { json() }
     install(CORS) { anyHost(); allowHeader("Authorization"); allowHeader("Content-Type") }
     install(WebSockets)
