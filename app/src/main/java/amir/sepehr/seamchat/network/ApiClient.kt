@@ -31,4 +31,5 @@ object ApiClient {
 
     fun auth(context: Context): AuthApi = retrofit(context).create(AuthApi::class.java)
     fun chat(context: Context): ChatApi = retrofit(context).create(ChatApi::class.java)
+    fun conversations(context: Context): ConversationApi = retrofit(context).create(ConversationApi::class.java)
 }
