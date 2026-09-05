@@ -21,6 +21,7 @@ class ChatViewModel(application:Application):AndroidViewModel(application){
  private fun upload(id:String,uri:Uri,type:String){viewModelScope.launch{_uploadError.value=null;_uploading.value=true;repository.uploadMedia(uri,type).onSuccess{send(id,it.url,type)}.onFailure{_uploadError.value=it.message}.also{_uploading.value=false}}}
  fun edit(messageId:String,body:String){viewModelScope.launch{repository.editMessage(messageId,body).onFailure{_error.value=it.message}}}
  fun delete(messageId:String){viewModelScope.launch{repository.deleteMessage(messageId).onSuccess{_messages.value=_messages.value.filterNot{it.id==messageId}}.onFailure{_error.value=it.message}}}
+ fun forward(messageId:String,targetConversationId:String){viewModelScope.launch{repository.forwardMessage(messageId,targetConversationId).onFailure{_error.value=it.message}}}
  fun react(messageId:String,reaction:String){viewModelScope.launch{repository.react(messageId,reaction).onFailure{_error.value=it.message}}}
  fun unreact(messageId:String,reaction:String){viewModelScope.launch{repository.unreact(messageId,reaction).onFailure{_error.value=it.message}}}
  fun setTyping(value:Boolean)=socket.setTyping(value);fun markRead(messageId:String)=socket.markRead(messageId);override fun onCleared(){cacheJob?.cancel();socketJob?.cancel();socket.close();super.onCleared()}
