@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.devtools.ksp") version "2.2.20-2.0.4"
 }
 
 android {
@@ -23,7 +24,6 @@ android {
 
 kotlin { jvmToolchain(17) }
 
-import org.gradle.kotlin.dsl.platform
 val composeBom = platform("androidx.compose:compose-bom:2025.08.01")
 
 dependencies {
@@ -40,6 +40,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.3")
     implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
