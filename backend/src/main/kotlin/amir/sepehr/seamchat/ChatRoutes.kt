@@ -25,6 +25,33 @@ class ChatRoutes(private val db: Database) {
     }
 
     fun register(route: Route) {
+        route.get("/api/v1/users/search") {
+            val auth = authFromCall(call, db) ?: return@get call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Unauthorized"))
+            val query = call.request.queryParameters["q"]?.trim().orEmpty()
+            if (query.length < 2) return@get call.respond(emptyList<UserDto>())
+            call.respond(db.searchUsers(query, auth.user.id))
+        }
+        route.get("/api/v1/conversations") {
+            val auth = authFromCall(call, db) ?: return@get call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Unauthorized"))
+            call.respond(db.conversations(auth.user.id))
+        }
+        route.post("/api/v1/conversations/direct") {
+            val auth = authFromCall(call, db) ?: return@post call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Unauthorized"))
+            val request = call.receive<CreateDirectConversationRequest>()
+            try {
+                call.respond(HttpStatusCode.Created, db.createDirectConversation(auth.user.id, request.userId))
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(e.message ?: "Invalid conversation"))
+            }
+        }
+        route.post("/api/v1/conversations/{id}/read") {
+            val auth = authFromCall(call, db) ?: return@post call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Unauthorized"))
+            val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("Missing conversation id"))
+            if (!db.isMember(id, auth.user.id)) return@post call.respond(HttpStatusCode.Forbidden, ErrorResponse("Not a conversation member"))
+            db.markRead(id, auth.user.id)
+            broadcast(id, RealtimeEvent("read", auth.user.id))
+            call.respond(mapOf("ok" to true))
+        }
         route.get("/api/v1/conversations/{id}/messages") {
             val auth = authFromCall(call, db) ?: return@get call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Unauthorized"))
             val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest, ErrorResponse("Missing conversation id"))
@@ -51,8 +78,7 @@ class ChatRoutes(private val db: Database) {
             val userId = auth.user.id
             val set = sockets.computeIfAbsent(conversationId) { ConcurrentHashMap.newKeySet() }
             val users = onlineUsers.computeIfAbsent(conversationId) { ConcurrentHashMap.newKeySet() }
-            set.add(this)
-            users.add(userId)
+            set.add(this); users.add(userId)
             broadcast(conversationId, RealtimeEvent("presence", userId, online = true), except = this)
             sendSerialized(RealtimeEvent("presence_snapshot", userId, onlineUsers = users.toList()))
             try {
@@ -73,8 +99,7 @@ class ChatRoutes(private val db: Database) {
                     }
                 }
             } finally {
-                set.remove(this)
-                users.remove(userId)
+                set.remove(this); users.remove(userId)
                 if (set.isEmpty()) sockets.remove(conversationId, set)
                 if (users.isEmpty()) onlineUsers.remove(conversationId, users)
                 broadcast(conversationId, RealtimeEvent("presence", userId, online = false), except = this)
