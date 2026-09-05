@@ -41,21 +41,31 @@ class Database {
             CREATE TABLE IF NOT EXISTS conversations(id TEXT PRIMARY KEY, title TEXT, type TEXT NOT NULL DEFAULT 'direct', created_at BIGINT NOT NULL);
             CREATE TABLE IF NOT EXISTS conversation_members(conversation_id TEXT REFERENCES conversations(id) ON DELETE CASCADE, user_id TEXT REFERENCES users(id) ON DELETE CASCADE, joined_at BIGINT NOT NULL, PRIMARY KEY(conversation_id,user_id));
             CREATE TABLE IF NOT EXISTS messages(id TEXT PRIMARY KEY, conversation_id TEXT REFERENCES conversations(id) ON DELETE CASCADE, sender_id TEXT REFERENCES users(id) ON DELETE CASCADE, body TEXT, type TEXT NOT NULL DEFAULT 'text', created_at BIGINT NOT NULL, edited_at BIGINT, deleted_at BIGINT);
+            CREATE TABLE IF NOT EXISTS conversation_reads(conversation_id TEXT REFERENCES conversations(id) ON DELETE CASCADE, user_id TEXT REFERENCES users(id) ON DELETE CASCADE, last_read_at BIGINT NOT NULL, PRIMARY KEY(conversation_id,user_id));
             CREATE INDEX IF NOT EXISTS idx_messages_conversation_created ON messages(conversation_id, created_at DESC);
+            CREATE INDEX IF NOT EXISTS idx_conversation_members_user ON conversation_members(user_id, conversation_id);
         """.trimIndent()) }
     }
 
+    private fun userFromRow(r: java.sql.ResultSet) = UserRecord(r.getString(1), r.getString(2), r.getString(3), r.getString(4), r.getString(5), r.getString(6))
+
     fun userByUsername(name: String): UserRecord? = query { c ->
         c.prepareStatement("SELECT id,username,display_name,password_hash,password_salt,avatar_url FROM users WHERE username=?").use { p ->
-            p.setString(1, name); p.executeQuery().use { r ->
-                if (!r.next()) null else UserRecord(r.getString(1),r.getString(2),r.getString(3),r.getString(4),r.getString(5),r.getString(6))
-            }
+            p.setString(1, name); p.executeQuery().use { r -> if (!r.next()) null else userFromRow(r) }
+        }
+    }
+
+    fun searchUsers(query: String, excludeUserId: String): List<UserDto> = query { c ->
+        c.prepareStatement("SELECT id,username,display_name,avatar_url FROM users WHERE id<>? AND (username ILIKE ? OR display_name ILIKE ?) ORDER BY username LIMIT 20").use { p ->
+            val q = "%${query.trim().replace("%", "\\%").replace("_", "\\_")}%"
+            p.setString(1, excludeUserId); p.setString(2, q); p.setString(3, q)
+            p.executeQuery().use { r -> buildList { while (r.next()) add(UserDto(r.getString(1), r.getString(2), r.getString(3), r.getString(4))) } }
         }
     }
 
     fun user(id: String): UserRecord? = query { c ->
         c.prepareStatement("SELECT id,username,display_name,password_hash,password_salt,avatar_url FROM users WHERE id=?").use { p ->
-            p.setString(1,id); p.executeQuery().use { r -> if (!r.next()) null else UserRecord(r.getString(1),r.getString(2),r.getString(3),r.getString(4),r.getString(5),r.getString(6)) }
+            p.setString(1,id); p.executeQuery().use { r -> if (!r.next()) null else userFromRow(r) }
         }
     }
 
@@ -76,6 +86,53 @@ class Database {
     fun revoke(sessionId:String)=query{c->c.prepareStatement("UPDATE sessions SET revoked_at=? WHERE id=?").use{p->p.setLong(1,System.currentTimeMillis());p.setString(2,sessionId);p.executeUpdate()}}
 
     fun isMember(cid:String,uid:String)=query{c->c.prepareStatement("SELECT 1 FROM conversation_members WHERE conversation_id=? AND user_id=?").use{p->p.setString(1,cid);p.setString(2,uid);p.executeQuery().use{it.next()}}}
+
+    fun conversations(uid: String): List<ConversationDto> = query { c ->
+        c.prepareStatement("""
+            SELECT c.id,c.type,c.title,c.created_at,
+                   lm.id,lm.conversation_id,lm.sender_id,lm.body,lm.type,lm.created_at,
+                   u.id,u.username,u.display_name,u.avatar_url,
+                   COALESCE((SELECT COUNT(*) FROM messages um WHERE um.conversation_id=c.id AND um.created_at>COALESCE((SELECT cr.last_read_at FROM conversation_reads cr WHERE cr.conversation_id=c.id AND cr.user_id=?),0) AND um.sender_id<>? AND um.deleted_at IS NULL),0)
+            FROM conversations c
+            JOIN conversation_members cm ON cm.conversation_id=c.id AND cm.user_id=?
+            LEFT JOIN LATERAL (SELECT * FROM messages m WHERE m.conversation_id=c.id AND m.deleted_at IS NULL ORDER BY m.created_at DESC LIMIT 1) lm ON true
+            LEFT JOIN conversation_members om ON om.conversation_id=c.id AND om.user_id<>?
+            LEFT JOIN users u ON u.id=om.user_id
+            ORDER BY COALESCE(lm.created_at,c.created_at) DESC
+        """.trimIndent()).use { p ->
+            p.setString(1,uid);p.setString(2,uid);p.setString(3,uid);p.setString(4,uid)
+            p.executeQuery().use { r -> buildList {
+                while(r.next()) {
+                    val last = if (r.getString(5) == null) null else MessageDto(r.getString(5),r.getString(6),r.getString(7),r.getString(8),r.getString(9),r.getLong(10))
+                    val other = if (r.getString(11) == null) null else UserDto(r.getString(11),r.getString(12),r.getString(13),r.getString(14))
+                    add(ConversationDto(r.getString(1),r.getString(2),r.getString(3),r.getLong(4),last,r.getInt(15),other))
+                }
+            } }
+        }
+    }
+
+    fun createDirectConversation(uid: String, otherUid: String): ConversationDto = query { c ->
+        require(uid != otherUid) { "Cannot create a conversation with yourself" }
+        if (user(otherUid) == null) throw IllegalArgumentException("User not found")
+        c.prepareStatement("""
+            SELECT c.id,c.type,c.title,c.created_at FROM conversations c
+            JOIN conversation_members a ON a.conversation_id=c.id AND a.user_id=?
+            JOIN conversation_members b ON b.conversation_id=c.id AND b.user_id=?
+            WHERE c.type='direct'
+            LIMIT 1
+        """.trimIndent()).use { p ->
+            p.setString(1,uid);p.setString(2,otherUid);p.executeQuery().use { r ->
+                if (r.next()) return@query ConversationDto(r.getString(1),r.getString(2),r.getString(3),r.getLong(4),otherUser=user(otherUid)?.dto())
+            }
+        }
+        val id=UUID.randomUUID().toString(); val now=System.currentTimeMillis()
+        c.prepareStatement("INSERT INTO conversations(id,type,created_at) VALUES(?,?,?)").use{p->p.setString(1,id);p.setString(2,"direct");p.setLong(3,now);p.executeUpdate()}
+        c.prepareStatement("INSERT INTO conversation_members(conversation_id,user_id,joined_at) VALUES(?,?,?),(?,?,?)").use{p->p.setString(1,id);p.setString(2,uid);p.setLong(3,now);p.setString(4,id);p.setString(5,otherUid);p.setLong(6,now);p.executeUpdate()}
+        ConversationDto(id,"direct",null,now,otherUser=user(otherUid)?.dto())
+    }
+
+    fun markRead(cid:String,uid:String,at:Long=System.currentTimeMillis())=query{c->c.prepareStatement("INSERT INTO conversation_reads(conversation_id,user_id,last_read_at) VALUES(?,?,?) ON CONFLICT(conversation_id,user_id) DO UPDATE SET last_read_at=EXCLUDED.last_read_at").use{p->p.setString(1,cid);p.setString(2,uid);p.setLong(3,at);p.executeUpdate()}}
+
     fun messages(cid:String):List<MessageDto>=query{c->c.prepareStatement("SELECT id,conversation_id,sender_id,body,type,created_at FROM messages WHERE conversation_id=? AND deleted_at IS NULL ORDER BY created_at ASC LIMIT 200").use{p->p.setString(1,cid);p.executeQuery().use{r->buildList{while(r.next())add(MessageDto(r.getString(1),r.getString(2),r.getString(3),r.getString(4),r.getString(5),r.getLong(6)))}}}}
     fun insertMessage(cid:String,uid:String,body:String,type:String)=MessageDto(UUID.randomUUID().toString(),cid,uid,body,type,System.currentTimeMillis()).also{m->query{c->c.prepareStatement("INSERT INTO messages(id,conversation_id,sender_id,body,type,created_at) VALUES(?,?,?,?,?,?)").use{p->p.setString(1,m.id);p.setString(2,cid);p.setString(3,uid);p.setString(4,body);p.setString(5,type);p.setLong(6,m.createdAt);p.executeUpdate()}}}
 }
