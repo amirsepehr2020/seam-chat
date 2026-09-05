@@ -2,6 +2,7 @@ package amir.sepehr.seamchat.network
 
 import android.content.Context
 import amir.sepehr.seamchat.BuildConfig
+import amir.sepehr.seamchat.chat.ChatApi
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -18,7 +19,7 @@ class AuthInterceptor(private val sessionStore: SessionStore) : Interceptor {
 }
 
 object ApiClient {
-    fun auth(context: Context): AuthApi {
+    private fun retrofit(context: Context): Retrofit {
         val store = SessionStore(context.applicationContext)
         val client = OkHttpClient.Builder().addInterceptor(AuthInterceptor(store)).build()
         return Retrofit.Builder()
@@ -26,6 +27,8 @@ object ApiClient {
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(AuthApi::class.java)
     }
+
+    fun auth(context: Context): AuthApi = retrofit(context).create(AuthApi::class.java)
+    fun chat(context: Context): ChatApi = retrofit(context).create(ChatApi::class.java)
 }
