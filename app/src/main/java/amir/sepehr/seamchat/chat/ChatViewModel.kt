@@ -1,6 +1,7 @@
 package amir.sepehr.seamchat.chat
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -19,6 +20,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     val messages: StateFlow<List<MessageDto>> = _messages.asStateFlow()
     private val _sending = MutableStateFlow(false)
     val sending: StateFlow<Boolean> = _sending.asStateFlow()
+    private val _uploading = MutableStateFlow(false)
+    val uploading: StateFlow<Boolean> = _uploading.asStateFlow()
     private val _connected = MutableStateFlow(false)
     val connected: StateFlow<Boolean> = _connected.asStateFlow()
     private val _typing = MutableStateFlow(false)
@@ -57,12 +60,25 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun send(conversationId: String, body: String) {
+    fun send(conversationId: String, body: String, type: String = "text") {
         if (body.isBlank() || _sending.value) return
         viewModelScope.launch {
             _sending.value = true
-            repository.sendMessage(conversationId, body.trim()).onFailure { _error.value = it.message }.onSuccess { _error.value = null }
+            repository.sendMessage(conversationId, body.trim(), type)
+                .onFailure { _error.value = it.message }
+                .onSuccess { _error.value = null }
             _sending.value = false
+        }
+    }
+
+    fun sendMedia(conversationId: String, uri: Uri, type: String) {
+        if (_uploading.value) return
+        viewModelScope.launch {
+            _uploading.value = true
+            repository.uploadMedia(uri, type)
+                .onSuccess { media -> send(conversationId, media.url, type) }
+                .onFailure { _error.value = it.message }
+            _uploading.value = false
         }
     }
 
