@@ -26,12 +26,13 @@ jobs:
         run: |
           set -o pipefail
           gradle :app:assembleDebug --no-daemon 2>&1 | tee android-build.log
+          find app/build/outputs -type f -name '*.apk' -print
       - name: Upload APK
         if: steps.android_build.conclusion == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: seam-chat-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/
           if-no-files-found: error
       - name: Commit build log on failure
         if: steps.android_build.conclusion != 'success' && github.event_name == 'push'
