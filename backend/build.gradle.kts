@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.serialization") version "2.2.20"
     application
+    id("com.gradleup.shadow") version "9.0.0"
 }
 
 group = "amir.sepehr"
@@ -27,3 +28,5 @@ dependencies {
 }
 
 kotlin { jvmToolchain(17) }
+
+shadowJar { archiveClassifier.set("all") }
