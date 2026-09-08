@@ -1,87 +1,158 @@
 # SEAM CHAT 💜💚
 
-SEAM CHAT is a real-time private web messenger with a static frontend and a Node.js/PostgreSQL/WebSocket backend.
+SEAM CHAT is a real-time private web messenger. The backend is Cloudflare-native: **Workers + D1 + Durable Objects**. There is no longer a Node.js/PostgreSQL server in the production architecture.
 
-## Production-ready core
+## Production core
 
-- Real account registration/login with per-user password salt and server-side pepper
-- 30-day server sessions stored as SHA-256 token hashes
-- PostgreSQL persistence for users, sessions and messages
-- One-to-one message history with bounded pagination (50 by default, 100 maximum)
-- Real-time authenticated WebSocket delivery
-- Sent / delivered / read message timestamps
+- Real account registration/login
+- Per-user password salt + server-side `PASSWORD_PEPPER`
+- PBKDF2-SHA-256 password derivation in the Workers runtime
+- 30-day server sessions stored as SHA-256 token hashes in D1
+- D1 persistence for users, sessions and messages
+- One-to-one message history with bounded pagination (50 default, 100 maximum)
+- Durable Objects for authenticated real-time WebSockets
+- WebSocket Hibernation-compatible architecture for persistent realtime connections
+- Sent / delivered / read timestamps
 - Read receipts and unread counters
 - Online/offline presence
-- Live typing indicator with server-side expiry
+- Live typing indicator
 - WebSocket reconnect with exponential backoff
 - Real user lookup for starting conversations
-- Duplicate message protection in the frontend
+- Duplicate message protection with optional client message IDs
 - Logout and session invalidation
-- API rate limiting and security headers
-- CORS allow-list support for a Cloudflare-hosted frontend
-- PostgreSQL connection pooling and startup health check
-- Expired-session cleanup
-- Docker Compose deployment setup
-- Automated two-user integration tests for auth, messaging, delivery, read receipts, typing, pagination and reconnect
+- Edge-side rate limiting backed by Durable Object state
+- Security headers and configurable CORS allow-list
+- Health endpoint
 - No seeded/demo accounts or fake messages
 
-## Architecture
+## Cloudflare architecture
 
 ```text
-Cloudflare / Static Frontend
-          │
-          ├── HTTPS REST ─────► Node.js + Express ─────► PostgreSQL
-          │
-          └── WSS /ws ────────► Authenticated WebSocket server
-                                      │
-                                      └── live presence / typing / messages
+                         Cloudflare
+                            │
+                   ┌────────┴────────┐
+                   │ Cloudflare      │
+                   │ Worker API      │
+                   └───────┬─────────┘
+                           │
+             ┌─────────────┼─────────────┐
+             │             │             │
+          REST API        D1       Durable Objects
+             │             │             │
+       auth/messages   users/sessions   WebSockets
+       presence/etc.     messages       presence
+                                         typing
+                                         realtime fanout
 ```
 
-## Local setup
+D1 is the source of truth for accounts, sessions and persisted messages. Durable Objects coordinate long-lived WebSocket connections, presence, typing and realtime fan-out. Cloudflare recommends Durable Objects for coordinated WebSocket applications, and its Hibernation API is designed for long-lived connections with lower idle runtime cost. citeturn0search0turn0search6
 
-1. Copy `backend/.env.example` to `backend/.env` and set a long random `PASSWORD_PEPPER`.
-2. Start PostgreSQL and set `DATABASE_URL`.
-3. Start the backend:
+## Repository layout
+
+```text
+/
+├── index.html
+├── app.js
+├── styles.css
+├── history.css
+├── assets/
+├── cloudflare/
+│   ├── src/index.js
+│   ├── migrations/0001_initial.sql
+│   ├── wrangler.toml
+│   ├── package.json
+│   └── .dev.vars.example
+└── .github/workflows/ci.yml
+```
+
+The old `backend/` Node/PostgreSQL implementation and Docker Compose stack have been removed so there is one backend architecture instead of two competing implementations.
+
+## Cloudflare setup
+
+### 1. Create the D1 database
+
+From `cloudflare/`:
 
 ```bash
-cd backend
 npm install
-npm start
+npx wrangler login
+npx wrangler d1 create seam-chat-db
 ```
 
-4. Serve the repository root with a static web server. If the frontend and backend are on different origins, set `window.SEAM_API_BASE` in `index.html` to the HTTPS backend URL and set `CORS_ORIGIN` to the exact frontend origin(s).
+Cloudflare's current Wrangler flow creates the D1 database and returns the database ID used by the Worker binding. citeturn0search8
 
-## Docker
+Copy the returned ID into `cloudflare/wrangler.toml` in place of `REPLACE_WITH_D1_DATABASE_ID`.
+
+### 2. Apply the schema
 
 ```bash
-docker compose up --build
+npx wrangler d1 migrations apply seam-chat-db --remote
 ```
 
-The backend listens on port `3000` and PostgreSQL on `5432` by default.
+The schema is versioned in `cloudflare/migrations/`; Wrangler tracks applied migrations in D1. citeturn0search4
 
-## Integration tests
+### 3. Configure secrets
 
-With PostgreSQL available and the backend running:
+Set a strong random pepper as a Cloudflare Worker secret:
 
 ```bash
-cd backend
+npx wrangler secret put PASSWORD_PEPPER
+```
+
+For production, also set the exact frontend origin:
+
+```bash
+npx wrangler secret put CORS_ORIGIN
+```
+
+Never commit the real pepper or other production secrets.
+
+### 4. Deploy
+
+```bash
+npx wrangler deploy
+```
+
+Wrangler is Cloudflare's CLI for managing Worker projects and deployments. citeturn0search9
+
+### 5. Connect the frontend
+
+If the Worker is routed on the same hostname as the frontend, the existing frontend can use its default `location.origin` API base.
+
+If the API is on a separate hostname, set this before `app.js` in `index.html`:
+
+```html
+<script>
+  window.SEAM_API_BASE = 'https://YOUR-API-HOSTNAME';
+</script>
+```
+
+The frontend already switches `ws://` to `wss://` automatically for the `/ws` endpoint.
+
+## Local development
+
+```bash
+cd cloudflare
 npm install
-npm run test:integration
+cp .dev.vars.example .dev.vars
+npx wrangler d1 migrations apply seam-chat-db --local
+npx wrangler dev
 ```
 
-The test creates isolated Alice/Bob accounts and verifies invalid auth, registration, duplicate usernames, wrong passwords, WebSocket delivery, delivery timestamps, read receipts, pagination, typing events, disconnect/reconnect, and post-reconnect messaging.
+Do not put production credentials in `.dev.vars` or commit that file.
 
-GitHub Actions runs the integration suite on pushes and pull requests targeting `main`.
+## CI
 
-## Production deployment checklist
+GitHub Actions now validates the Cloudflare Worker bundle with Wrangler instead of starting PostgreSQL and the removed Node backend.
 
-- Use HTTPS/WSS only.
-- Set a strong random `PASSWORD_PEPPER` outside the repository.
-- Set `CORS_ORIGIN` to the exact Cloudflare frontend origin; do not use `*` in production.
-- Use a managed PostgreSQL instance with backups and TLS.
-- Put the backend behind a reverse proxy/load balancer with WebSocket support.
-- Keep database credentials and deployment secrets out of Git.
-- Monitor `/health`, application errors and database capacity.
-- The current WebSocket authentication uses a short-lived server session token in the connection URL. For a higher-security deployment, move browser authentication to an HttpOnly, Secure cookie or an equivalent WebSocket authentication mechanism before exposing the service broadly.
+## Important deployment note
 
-The GitHub repository is source code, not the live account database. A private repository can later be used for encrypted backups/audit artifacts without storing plaintext passwords or live chat data in Git history.
+The repository now contains the complete Cloudflare-native backend implementation and configuration, but creating the actual D1 database and deploying the Worker requires access to your Cloudflare account. The repository intentionally contains a placeholder D1 ID rather than pretending a real Cloudflare resource was created.
+
+## Security notes
+
+- Passwords are never stored plaintext.
+- Session tokens are stored only as SHA-256 hashes in D1.
+- The browser currently carries the session token for API authentication and the WebSocket handshake. For a later hardening pass, this can be moved to an HttpOnly, Secure cookie/session flow.
+- CORS should be restricted to the exact frontend origin in production.
+- Attachments remain disabled until secure R2-backed file handling is intentionally added; the UI does not fake uploads.
