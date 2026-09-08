@@ -1,2 +1,0 @@
-PASSWORD_PEPPER="replace-with-a-long-random-secret"
-CORS_ORIGIN="https://YOUR-SEAM-CHAT-DOMAIN"
