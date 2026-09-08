@@ -28,10 +28,16 @@ function connect(token) {
     ws.once('error', error => { clearTimeout(timer); reject(error); });
   });
 }
-function nextMessage(ws, timeout = 5000) {
+function nextMessage(ws, predicate = () => true, timeout = 5000) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('WebSocket message timeout')), timeout);
-    ws.once('message', data => { clearTimeout(timer); resolve(JSON.parse(data.toString())); });
+    const handler = data => {
+      let parsed;
+      try { parsed = JSON.parse(data.toString()); } catch { return; }
+      if (!predicate(parsed)) return;
+      clearTimeout(timer); ws.off('message', handler); resolve(parsed);
+    };
+    ws.on('message', handler);
   });
 }
 
@@ -54,25 +60,42 @@ assert.equal(wrong.response.status, 401, 'wrong password must be rejected');
 const aliceWs = await connect(a.data.token);
 const bobWs = await connect(b.data.token);
 
-const incomingAtBob = nextMessage(bobWs);
+const incomingAtBob = nextMessage(bobWs, m => m.type === 'message');
 const sent = await request('/api/messages', { method: 'POST', headers: { Authorization: `Bearer ${a.data.token}` }, body: JSON.stringify({ recipient: bob, body: 'integration-test-message' }) });
 assert.equal(sent.response.status, 201);
+assert.ok(sent.data.message.deliveredAt, 'online recipient should get delivered timestamp');
 const bobMessage = await incomingAtBob;
 assert.equal(bobMessage.type, 'message');
 assert.equal(bobMessage.sender, alice);
 assert.equal(bobMessage.recipient, bob);
 assert.equal(bobMessage.body, 'integration-test-message');
+assert.ok(bobMessage.deliveredAt);
 
-const history = await request(`/api/messages/${encodeURIComponent(alice)}`, { headers: { Authorization: `Bearer ${b.data.token}` } });
+const readEvent = nextMessage(aliceWs, m => m.type === 'read');
+const read = await request(`/api/messages/${encodeURIComponent(alice)}/read`, { method: 'POST', headers: { Authorization: `Bearer ${b.data.token}` } });
+assert.equal(read.response.status, 200);
+assert.equal(read.data.updated, 1);
+const readNotice = await readEvent;
+assert.equal(readNotice.type, 'read');
+assert.ok(readNotice.ids.length >= 1);
+
+const history = await request(`/api/messages/${encodeURIComponent(alice)}?limit=1`, { headers: { Authorization: `Bearer ${b.data.token}` } });
 assert.equal(history.response.status, 200);
-assert.ok(history.data.messages.some(m => m.body === 'integration-test-message'));
+assert.equal(history.data.messages.length, 1);
+assert.equal(history.data.messages[0].body, 'integration-test-message');
+
+const typingEvent = nextMessage(bobWs, m => m.type === 'typing');
+aliceWs.send(JSON.stringify({ type: 'typing', username: bob, active: true }));
+const typing = await typingEvent;
+assert.equal(typing.active, true);
+assert.equal(typing.username, alice);
 
 aliceWs.close();
 await delay(100);
 const aliceWs2 = await connect(a.data.token);
 assert.equal(aliceWs2.readyState, WebSocket.OPEN, 'reconnect must succeed with a valid session');
 
-const outgoingToAlice = nextMessage(aliceWs2);
+const outgoingToAlice = nextMessage(aliceWs2, m => m.type === 'message');
 const reply = await request('/api/messages', { method: 'POST', headers: { Authorization: `Bearer ${b.data.token}` }, body: JSON.stringify({ recipient: alice, body: 'reconnect-test-message' }) });
 assert.equal(reply.response.status, 201);
 const aliceMessage = await outgoingToAlice;
