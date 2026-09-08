@@ -1,22 +1,42 @@
-/* SEAM CHAT mobile-first responsive layer */
 @media (max-width:760px){
-html,body{width:100%;height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
-body{-webkit-text-size-adjust:100%;touch-action:pan-y}
-.ambient{opacity:.22;filter:blur(70px)}.ambient-a{width:220px;height:220px;top:-120px;right:-50px}.ambient-b{width:220px;height:220px;bottom:-130px;left:-60px}.grid-glow{opacity:.07;background-size:40px 40px}
-.app-shell{position:relative;width:100%;height:100dvh;min-height:100dvh;display:block;padding:0;overflow:hidden}
-.rail{display:none!important}
-.conversations,.conversation{position:absolute;inset:0;width:100%;height:100%;min-width:0;min-height:0;border-radius:0;border:0;box-shadow:none}
-.conversations{display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 14px) 12px calc(env(safe-area-inset-bottom) + 10px);overflow:hidden;z-index:2}
-.conversation{display:none;z-index:3}
-.app-shell:has(.chat-row.selected) .conversations{display:none}.app-shell:has(.chat-row.selected) .conversation{display:flex}
-.sidebar-head{padding:2px 4px 15px}.sidebar-head h1{font-size:27px}.icon-btn{width:44px;height:44px;border-radius:14px}
-.search-wrap{height:50px;border-radius:16px;padding:0 14px}.search-wrap input{font-size:13px}.search-hint{font-size:10px;padding:10px 4px 7px}
-.chat-list{height:auto;flex:1;min-height:0;padding:2px 0 10px;overflow-y:auto;-webkit-overflow-scrolling:touch}.chat-row{min-height:68px;grid-template-columns:48px minmax(0,1fr) auto;gap:11px;padding:10px 9px;border-radius:17px;margin-bottom:4px}.avatar{width:46px;height:46px;border-radius:15px}.chat-copy strong{font-size:13px}.chat-copy small{font-size:10px}.chat-meta{font-size:9px}.chat-meta b{min-width:20px;height:20px;font-size:9px}
-.conversation-head{height:auto;min-height:72px;padding:calc(env(safe-area-inset-top) + 8px) 10px 9px;flex-shrink:0}.conversation-head .person{min-width:0;flex:1;gap:10px}.conversation-head .person>div{min-width:0}.conversation-head .person strong{display:block;max-width:55vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}.conversation-head .person small{font-size:9px}.mobile-back{display:grid!important;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.05);color:#fff;font-size:24px;flex:none;cursor:pointer}.head-actions{gap:4px}.head-actions .icon-btn{width:42px;height:42px}.head-actions .icon-btn:first-child{display:none}
-.message-area{padding:13px 11px 10px;gap:7px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.message{max-width:88%}.message>div{padding:9px 11px;border-radius:16px}.message p{font-size:12px;line-height:1.8}.message time{font-size:8px}.empty-conversation{padding:0 25px}.empty-conversation strong{font-size:14px}.empty-conversation span{font-size:10px;line-height:1.8}.empty-icon{width:52px;height:52px;border-radius:17px}.history-btn{font-size:10px;padding:8px 12px;margin:5px 0 8px}
-.composer{position:relative;flex:none;margin:0 9px calc(8px + env(safe-area-inset-bottom));width:calc(100% - 18px);height:58px;min-height:58px;border-radius:19px;padding:0 7px;gap:3px}.composer input{font-size:13px;padding:0 7px;min-width:0}.composer-btn{width:42px;height:42px;flex:none}.send-btn{width:44px;height:44px;border-radius:14px;flex:none}
-.details{inset:10px;width:auto;height:auto;border-radius:24px;padding:10px 15px calc(18px + env(safe-area-inset-bottom));z-index:10;box-shadow:0 25px 90px rgba(0,0,0,.55)}.details-profile h2{font-size:19px}.details-profile p{font-size:10px}.details-close{width:42px;height:42px;font-size:22px}.quick-actions button{min-height:44px;font-size:10px}
-dialog{max-width:100vw;max-height:100dvh}dialog::backdrop{backdrop-filter:blur(12px)}.auth-card,.modal-card{width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overflow:auto;border-radius:24px;padding:22px 18px}.auth-logo{width:58px;height:58px}.auth-card h2,.modal-card h2{font-size:19px}.field input{height:48px;font-size:13px}.primary-action{height:49px;font-size:12px}.toast{bottom:calc(18px + env(safe-area-inset-bottom));max-width:calc(100vw - 28px);font-size:10px;text-align:center}
+  :root{--vvh:100dvh}
+  html,body{width:100%;min-width:0;height:100%;height:100dvh;overflow:hidden}
+  body{overscroll-behavior:none}
+  .app-shell{width:100%;height:100dvh;height:var(--vvh);display:block;position:relative;overflow:hidden}
+  .sidebar,.conversation,.details-panel{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;border-radius:0!important;margin:0!important;transform:none!important}
+  .sidebar{display:flex!important;flex-direction:column;z-index:3;padding:calc(12px + env(safe-area-inset-top)) 12px calc(70px + env(safe-area-inset-bottom))!important;overflow:hidden}
+  .conversation{display:flex!important;flex-direction:column;z-index:4;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .18s ease,visibility .18s ease}
+  .details-panel{z-index:8;visibility:hidden;opacity:0;pointer-events:none}
+  body[data-mobile-view="list"] .conversation{visibility:hidden;opacity:0;pointer-events:none}
+  body[data-mobile-view="list"] .sidebar{visibility:visible;opacity:1;pointer-events:auto}
+  body[data-mobile-view="chat"] .conversation{visibility:visible;opacity:1;pointer-events:auto}
+  body[data-mobile-view="chat"] .sidebar{visibility:hidden;opacity:0;pointer-events:none}
+  .brand-row{min-height:58px;gap:10px}
+  .brand-logo{width:38px;height:38px}
+  .search-box{height:48px;flex:0 0 48px;margin:10px 0}
+  .section-head{padding:4px 2px 8px}
+  .chat-list{flex:1;min-height:0;overflow:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+  .chat-row{min-height:68px;width:100%;border-radius:18px;margin:3px 0;padding:10px;touch-action:manipulation}
+  .chat-copy{min-width:0;text-align:right}
+  .chat-copy strong,.chat-copy small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mobile-nav{position:absolute;display:flex;right:12px;left:12px;bottom:calc(8px + env(safe-area-inset-bottom));height:58px;padding:4px;border-radius:20px;z-index:10}
+  .mobile-nav button{flex:1;border:0;background:transparent;border-radius:16px;font:inherit;display:flex;align-items:center;justify-content:center;gap:5px;flex-direction:column;font-size:11px}
+  .mobile-nav button.active{background:rgba(255,255,255,.09)}
+  .conversation-head{min-height:68px;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;gap:8px;flex:0 0 auto}
+  .mobile-back{display:inline-flex!important;flex:0 0 42px;width:42px;height:42px;font-size:28px}
+  .person{min-width:0;flex:1}
+  .person>div{min-width:0}
+  .person strong,.person small{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .head-actions{gap:4px}
+  .message-area{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 10px 10px!important;-webkit-overflow-scrolling:touch}
+  .message{max-width:88%;margin:5px 0}
+  .message p{word-break:break-word}
+  .composer{position:relative!important;bottom:auto!important;left:auto!important;right:auto!important;width:auto!important;margin:8px 10px calc(8px + env(safe-area-inset-bottom))!important;min-height:54px;max-height:120px;border-radius:22px!important;padding:6px!important;flex:0 0 auto;z-index:7}
+  #messageInput{min-width:0;max-height:86px;padding:10px 8px!important;font-size:16px!important;line-height:1.5}
+  .send-btn,.composer .icon-btn{width:42px!important;height:42px!important;min-width:42px!important;flex:0 0 42px!important}
+  .load-older{flex:0 0 auto;align-self:center;margin:4px 0 0}
+  .empty-conversation{padding:30px 20px}
+  .modal{width:calc(100% - 24px);max-width:none;max-height:calc(100dvh - 24px);border-radius:26px}
 }
-@media(max-width:380px){.sidebar-head h1{font-size:24px}.chat-row{min-height:64px;gap:9px;padding:9px 7px}.avatar{width:43px;height:43px}.conversation-head .person strong{max-width:48vw}.message{max-width:91%}.composer{height:55px;min-height:55px}.composer-btn{width:39px;height:39px}.send-btn{width:41px;height:41px}}
-@media(min-width:761px){.mobile-back{display:none!important}}
+@media (min-width:761px){.mobile-nav,.mobile-back{display:none!important}}
+@media (max-width:380px){.chat-row{min-height:64px}.head-actions #chatSearch{display:none}.message{max-width:92%}}
