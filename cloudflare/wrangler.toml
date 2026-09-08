@@ -1,0 +1,25 @@
+name = "seam-chat-api"
+main = "src/index.js"
+compatibility_date = "2026-09-08"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+SESSION_DAYS = "30"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "seam-chat-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+[durable_objects]
+bindings = [
+  { name = "PRESENCE", class_name = "Presence" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Presence"]
+
+[observability]
+enabled = true
