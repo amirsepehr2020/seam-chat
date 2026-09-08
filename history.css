@@ -1,1 +1,2 @@
 .history-btn{align-self:center;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045);color:#9c9eaa;border-radius:12px;padding:8px 12px;font-size:10px;cursor:pointer;margin:8px 0}.history-btn:hover{color:#fff;background:rgba(142,78,255,.14)}.history-btn[hidden]{display:none}
+@import url('./mobile.css');
