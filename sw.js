@@ -1,9 +1,11 @@
-const CACHE_NAME = 'seam-chat-v1';
+const CACHE_NAME = 'seam-chat-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
   '/styles.css',
   '/history.css',
+  '/mobile.css',
+  '/mobile.js',
   '/app.js',
   '/manifest.webmanifest',
   '/assets/seam-chat-logo.svg'
@@ -26,7 +28,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') return;
-
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
