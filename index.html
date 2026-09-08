@@ -1,49 +1,68 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0b12" />
-  <meta name="description" content="SEAM CHAT — real-time private messaging." />
-  <title>SEAM CHAT</title>
+  <meta name="theme-color" content="#090a12" />
+  <meta name="description" content="SEAM CHAT — پیام‌رسان خصوصی و بلادرنگ" />
+  <title>SEAM CHAT | پیام‌رسان</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Estedad:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="history.css" />
 </head>
 <body>
   <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div><div class="grid-glow"></div>
   <main class="app-shell">
-    <aside class="rail glass">
-      <a class="brand" href="#" aria-label="SEAM CHAT home"><img src="assets/seam-chat-logo.svg" alt="SEAM CHAT" /></a>
-      <nav class="rail-nav" aria-label="Main navigation"><button class="rail-btn active" title="Chats">⌁</button><button class="rail-btn" id="contactsBtn" title="Contacts">◉</button></nav>
-      <button class="profile-orb" id="profileBtn" aria-label="Profile">?</button>
+    <aside class="rail glass" aria-label="ناوبری">
+      <a class="brand" href="#" aria-label="SEAM CHAT"><img src="assets/seam-chat-logo.svg" alt="SEAM CHAT" /></a>
+      <nav class="rail-nav"><button class="rail-btn active" id="chatsNav" title="گفتگوها">◫</button><button class="rail-btn" id="contactsBtn" title="مخاطبین">◎</button></nav>
+      <button class="profile-orb" id="profileBtn" aria-label="حساب کاربری">؟</button>
     </aside>
 
-    <section class="conversations glass">
-      <header class="sidebar-head"><div><p class="eyebrow">SEAM CHAT</p><h1>Chats</h1></div><button class="icon-btn" id="newChat" title="New chat">＋</button></header>
-      <label class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="Search users or chats" autocomplete="off" /></label>
-      <div class="filter-row"><button class="filter active" data-filter="all">All</button></div>
-      <div class="chat-list" id="chatList"><div class="empty-state">Sign in to load your conversations.</div></div>
+    <section class="conversations glass" id="sidebarPanel">
+      <header class="sidebar-head"><div><p class="eyebrow">SEAM CHAT</p><h1>گفتگوها</h1></div><button class="icon-btn accent-btn" id="newChat" title="گفتگوی جدید">＋</button></header>
+      <label class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="جستجوی گفتگو یا کاربر…" autocomplete="off" /></label>
+      <div class="search-hint" id="searchHint">برای شروع، نام کاربری را جستجو کنید.</div>
+      <div class="chat-list" id="chatList"><div class="empty-state">برای دیدن گفتگوها وارد حساب شوید.</div></div>
     </section>
 
-    <section class="conversation glass">
-      <header class="conversation-head"><div class="person"><span class="avatar avatar-purple large" id="activeAvatar">?</span><div><strong id="activeName">Select a chat</strong><small id="activeStatus">—</small></div></div><div class="head-actions"><button class="icon-btn" id="chatSearch" title="Search">⌕</button><button class="icon-btn" id="chatMore" title="More">•••</button></div></header>
-      <div class="message-area" id="messageArea"><div class="empty-conversation">Sign in to start messaging.</div></div>
-      <button class="history-btn" id="loadOlder" hidden>Load older messages</button>
-      <form class="composer glass-inner" id="composer"><button type="button" class="composer-btn" id="attachBtn" title="Attach">＋</button><input id="messageInput" placeholder="Write a message…" autocomplete="off" disabled /><button class="send-btn" title="Send" type="submit" disabled>➜</button></form>
+    <section class="conversation glass" id="conversationPanel">
+      <header class="conversation-head"><div class="person"><span class="avatar avatar-purple large" id="activeAvatar">؟</span><div><strong id="activeName">یک گفتگو را انتخاب کنید</strong><small id="activeStatus">—</small></div></div><div class="head-actions"><button class="icon-btn" id="chatSearch" title="جستجو">⌕</button><button class="icon-btn" id="chatMore" title="بیشتر">⋯</button></div></header>
+      <div class="message-area" id="messageArea"><div class="empty-conversation"><div class="empty-icon">✦</div><strong>به SEAM CHAT خوش آمدید</strong><span>یک گفتگو را انتخاب کنید یا یک کاربر جدید پیدا کنید.</span></div></div>
+      <button class="history-btn" id="loadOlder" hidden>نمایش پیام‌های قدیمی‌تر</button>
+      <form class="composer glass-inner" id="composer" autocomplete="off"><button type="button" class="composer-btn" id="attachBtn" title="پیوست">＋</button><input id="messageInput" maxlength="4000" placeholder="پیامتان را بنویسید…" autocomplete="off" disabled /><button class="send-btn" title="ارسال" type="submit" disabled>➤</button></form>
     </section>
 
-    <aside class="details glass"><div class="details-profile"><span class="avatar avatar-purple xlarge" id="detailsAvatar">?</span><h2 id="detailsName">No chat selected</h2><p id="detailsUsername">—</p></div><div class="quick-actions"><button id="detailsSearch">⌕ Search</button><button id="blockBtn">Block</button></div><div class="detail-section"><div class="section-title">Status</div><p id="connectionStatus">Not connected</p></div></aside>
+    <aside class="details glass" id="detailsPanel"><div class="details-top"><button class="details-close" id="detailsClose" aria-label="بستن">×</button></div><div class="details-profile"><span class="avatar avatar-purple xlarge" id="detailsAvatar">؟</span><h2 id="detailsName">گفتگویی انتخاب نشده</h2><p id="detailsUsername">—</p></div><div class="quick-actions"><button id="detailsSearch">⌕ جستجو</button><button id="blockBtn">⚑ مسدودسازی</button></div><div class="detail-section"><div class="section-title">وضعیت اتصال</div><p id="connectionStatus">متصل نیست</p></div><div class="detail-section"><div class="section-title">درباره SEAM CHAT</div><p class="detail-note">پیام‌ها مستقیماً بین حساب‌های واقعی ارسال و روی سرور خصوصی SEAM CHAT ذخیره می‌شوند.</p></div></aside>
   </main>
+
   <div class="toast" id="toast" role="status"></div>
-  <dialog id="authDialog"><form method="dialog" id="authForm"><h2>SEAM CHAT</h2><p>Use a real account to connect to the server.</p><select id="authMode" aria-label="Authentication mode"><option value="login">Sign in</option><option value="register">Create account</option></select><input id="authUsername" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="Username" autocomplete="username"><input id="authPassword" required minlength="8" maxlength="128" type="password" placeholder="Password (8+ characters)" autocomplete="current-password"><button id="authSubmit" value="default">Sign in</button><small id="authError"></small></form></dialog>
-  <dialog id="newChatDialog"><form method="dialog" id="newChatForm"><h2>New conversation</h2><p>Enter the exact username of the person you want to message.</p><input id="targetUsername" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="Username" autocomplete="off"><button value="default">Open chat</button></form></dialog>
-  <script>
-    // SEAM CHAT production backend: Cloudflare Tunnel → Node.js on the host laptop.
-    window.SEAM_API_BASE = 'https://api.redlighte.ir';
-  </script>
+
+  <dialog id="authDialog">
+    <form method="dialog" id="authForm" class="auth-card">
+      <button type="button" class="dialog-close" id="authClose" aria-label="بستن">×</button>
+      <div class="auth-logo"><img src="assets/seam-chat-logo.svg" alt="" /></div>
+      <h2 id="authTitle">خوش آمدید 👋</h2><p id="authSubtitle">برای ادامه وارد حساب SEAM CHAT شوید.</p>
+      <div class="auth-tabs"><button type="button" class="auth-tab active" data-mode="login">ورود</button><button type="button" class="auth-tab" data-mode="register">ثبت‌نام</button></div>
+      <label class="field"><span>نام کاربری</span><input id="authUsername" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="مثلاً Sepehr_01" autocomplete="username" /></label>
+      <label class="field"><span>رمز عبور</span><input id="authPassword" required minlength="8" maxlength="128" type="password" placeholder="حداقل ۸ کاراکتر" autocomplete="current-password" /></label>
+      <button id="authSubmit" class="primary-action" value="default">ورود به SEAM CHAT</button>
+      <small id="authError" class="form-error"></small>
+    </form>
+  </dialog>
+
+  <dialog id="newChatDialog">
+    <form method="dialog" id="newChatForm" class="modal-card">
+      <button type="button" class="dialog-close" id="newChatClose" aria-label="بستن">×</button>
+      <div class="modal-icon">✦</div><h2>گفتگوی جدید</h2><p>نام کاربری دقیق فرد موردنظر را وارد کنید.</p>
+      <label class="field"><span>نام کاربری</span><input id="targetUsername" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="نام کاربری" autocomplete="off" /></label>
+      <button class="primary-action" value="default">شروع گفتگو</button>
+    </form>
+  </dialog>
+
+  <script>window.SEAM_API_BASE = 'https://api.redlighte.ir';</script>
   <script src="app.js"></script>
 </body>
 </html>
