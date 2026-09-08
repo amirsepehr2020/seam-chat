@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">SEAM CHAT logo</title>
+  <desc id="desc">An abstract purple and green seam forming an infinity chat mark.</desc>
+  <defs>
+    <linearGradient id="p" x1="18" y1="28" x2="132" y2="132" gradientUnits="userSpaceOnUse"><stop stop-color="#B06BFF"/><stop offset="1" stop-color="#7540FF"/></linearGradient>
+    <linearGradient id="g" x1="42" y1="136" x2="146" y2="34" gradientUnits="userSpaceOnUse"><stop stop-color="#29D987"/><stop offset="1" stop-color="#7AF5B6"/></linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect x="7" y="7" width="146" height="146" rx="42" fill="#11121B" stroke="#FFFFFF" stroke-opacity=".08"/>
+  <path d="M44 103c-16-10-20-31-9-46 11-15 32-20 48-10l34 21c16 10 20 31 9 46-11 15-32 20-48 10L44 103Z" fill="none" stroke="url(#p)" stroke-width="17" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M116 57c16 10 20 31 9 46-11 15-32 20-48 10L43 92c-16-10-20-31-9-46 11-15 32-20 48-10l34 21Z" fill="none" stroke="url(#g)" stroke-width="17" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M67 80h26" stroke="#fff" stroke-opacity=".9" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="60" cy="80" r="4" fill="#fff"/><circle cx="100" cy="80" r="4" fill="#fff"/>
+</svg>
