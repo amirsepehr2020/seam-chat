@@ -40,7 +40,10 @@
   <div class="toast" id="toast" role="status"></div>
   <dialog id="authDialog"><form method="dialog" id="authForm"><h2>SEAM CHAT</h2><p>Use a real account to connect to the server.</p><select id="authMode" aria-label="Authentication mode"><option value="login">Sign in</option><option value="register">Create account</option></select><input id="authUsername" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="Username" autocomplete="username"><input id="authPassword" required minlength="8" maxlength="128" type="password" placeholder="Password (8+ characters)" autocomplete="current-password"><button id="authSubmit" value="default">Sign in</button><small id="authError"></small></form></dialog>
   <dialog id="newChatDialog"><form method="dialog" id="newChatForm"><h2>New conversation</h2><p>Enter the exact username of the person you want to message.</p><input id="targetUsername" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="Username" autocomplete="off"><button value="default">Open chat</button></form></dialog>
-  <script>window.SEAM_API_BASE = window.SEAM_API_BASE || location.origin;</script>
+  <script>
+    // SEAM CHAT production backend: Cloudflare Tunnel → Node.js on the host laptop.
+    window.SEAM_API_BASE = 'https://api.redlighte.ir';
+  </script>
   <script src="app.js"></script>
 </body>
 </html>
