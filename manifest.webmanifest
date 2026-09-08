@@ -1,0 +1,16 @@
+{
+  "name": "SEAM CHAT",
+  "short_name": "SEAM CHAT",
+  "description": "پیام‌رسان خصوصی و بلادرنگ SEAM CHAT",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090a12",
+  "theme_color": "#090a12",
+  "icons": [
+    { "src": "assets/seam-chat-logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
