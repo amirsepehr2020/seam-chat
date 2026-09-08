@@ -1,0 +1,51 @@
+name: SEAM CHAT CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: seam_chat
+          POSTGRES_USER: seam
+          POSTGRES_PASSWORD: change-me
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U seam -d seam_chat"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package.json
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm install --omit=dev
+      - name: Start backend
+        working-directory: backend
+        env:
+          PORT: 3000
+          DATABASE_URL: postgresql://seam:change-me@127.0.0.1:5432/seam_chat
+          DATABASE_SSL: "false"
+          PASSWORD_PEPPER: ci-only-test-pepper
+        run: node src/server.js > /tmp/seam-chat-backend.log 2>&1 &
+      - name: Run two-user integration test
+        working-directory: backend
+        env:
+          TEST_BASE_URL: http://127.0.0.1:3000
+        run: node test/integration.mjs
+      - name: Backend log on failure
+        if: failure()
+        run: cat /tmp/seam-chat-backend.log
