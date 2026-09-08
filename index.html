@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0b12" />
+  <meta name="description" content="SEAM CHAT — a sleek animated web messenger." />
+  <title>SEAM CHAT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <div class="grid-glow"></div>
+
+  <main class="app-shell">
+    <aside class="rail glass">
+      <a class="brand" href="#" aria-label="SEAM CHAT home">
+        <img src="assets/seam-chat-logo.svg" alt="SEAM CHAT" />
+      </a>
+      <nav class="rail-nav" aria-label="Main navigation">
+        <button class="rail-btn active" title="Chats" aria-label="Chats"><span>⌁</span></button>
+        <button class="rail-btn" title="Contacts" aria-label="Contacts"><span>◉</span></button>
+        <button class="rail-btn" title="Calls" aria-label="Calls"><span>◌</span></button>
+        <button class="rail-btn" title="Saved" aria-label="Saved"><span>◇</span></button>
+      </nav>
+      <button class="profile-orb" aria-label="Your profile">S</button>
+    </aside>
+
+    <section class="conversations glass">
+      <header class="sidebar-head">
+        <div>
+          <p class="eyebrow">MESSENGER</p>
+          <h1>Chats</h1>
+        </div>
+        <button class="icon-btn" id="newChat" title="New chat">＋</button>
+      </header>
+
+      <label class="search-wrap">
+        <span>⌕</span>
+        <input id="searchInput" type="search" placeholder="Search conversations" autocomplete="off" />
+        <kbd>⌘ K</kbd>
+      </label>
+
+      <div class="filter-row">
+        <button class="filter active">All</button>
+        <button class="filter">Unread</button>
+        <button class="filter">Groups</button>
+      </div>
+
+      <div class="chat-list" id="chatList">
+        <button class="chat-row selected" data-name="Amir M">
+          <span class="avatar avatar-purple">A<span class="presence"></span></span>
+          <span class="chat-copy"><strong>Amir M</strong><small>That UI is actually insane 🔥</small></span>
+          <span class="chat-meta"><time>18:42</time><b>2</b></span>
+        </button>
+        <button class="chat-row" data-name="SEAM Team">
+          <span class="avatar avatar-green">S<span class="presence"></span></span>
+          <span class="chat-copy"><strong>SEAM Team</strong><small>New build is ready to test</small></span>
+          <span class="chat-meta"><time>17:18</time></span>
+        </button>
+        <button class="chat-row" data-name="Sepideh">
+          <span class="avatar avatar-pink">S</span>
+          <span class="chat-copy"><strong>Sepideh</strong><small>Don't forget the files</small></span>
+          <span class="chat-meta"><time>16:02</time></span>
+        </button>
+        <button class="chat-row" data-name="Design Lab">
+          <span class="avatar avatar-blue">D</span>
+          <span class="chat-copy"><strong>Design Lab</strong><small>You: Sent an attachment</small></span>
+          <span class="chat-meta"><time>Yesterday</time></span>
+        </button>
+        <button class="chat-row" data-name="Nima">
+          <span class="avatar avatar-orange">N</span>
+          <span class="chat-copy"><strong>Nima</strong><small>See you tomorrow!</small></span>
+          <span class="chat-meta"><time>Mon</time></span>
+        </button>
+      </div>
+    </section>
+
+    <section class="conversation glass">
+      <header class="conversation-head">
+        <div class="person">
+          <span class="avatar avatar-purple large">A<span class="presence"></span></span>
+          <div><strong id="activeName">Amir M</strong><small id="activeStatus">Active now</small></div>
+        </div>
+        <div class="head-actions">
+          <button class="icon-btn" title="Search">⌕</button>
+          <button class="icon-btn" title="Call">◌</button>
+          <button class="icon-btn" title="More">•••</button>
+        </div>
+      </header>
+
+      <div class="message-area" id="messageArea">
+        <div class="date-pill">TODAY · SEPTEMBER 8</div>
+        <div class="system-line"><span></span> Messages are end-to-end encrypted <span></span></div>
+
+        <article class="message received reveal"><span class="bubble-avatar">A</span><div><p>Bro, did you see the new SEAM interface?</p><time>18:36</time></div></article>
+        <article class="message sent reveal"><div><p>Yeah 😭 I went full glass + neon this time.</p><time>18:37 ✓✓</time></div></article>
+        <article class="message received reveal"><span class="bubble-avatar">A</span><div><p>That purple + green combo is CLEAN.</p><time>18:38</time></div></article>
+        <article class="message sent reveal"><div><p>Wait until you see the animations.</p><time>18:39 ✓✓</time></div></article>
+        <div class="media-card reveal">
+          <div class="media-preview"><div class="orbit"></div><span>SEAM / UI PREVIEW</span></div>
+          <div class="media-caption"><strong>seam-chat-preview.png</strong><small>2.4 MB · Image</small></div>
+        </div>
+        <article class="message received reveal"><span class="bubble-avatar">A</span><div><p>Okay. That UI is actually insane 🔥</p><time>18:42</time></div></article>
+        <div class="typing" id="typing"><span class="typing-avatar">A</span><div><i></i><i></i><i></i></div><small>typing…</small></div>
+      </div>
+
+      <form class="composer glass-inner" id="composer">
+        <button type="button" class="composer-btn" title="Attach">＋</button>
+        <input id="messageInput" placeholder="Write a message…" autocomplete="off" />
+        <button type="button" class="composer-btn emoji" title="Emoji">☺</button>
+        <button class="send-btn" title="Send" type="submit">➜</button>
+      </form>
+    </section>
+
+    <aside class="details glass">
+      <div class="details-cover"></div>
+      <div class="details-profile">
+        <span class="avatar avatar-purple xlarge">A</span>
+        <h2 id="detailsName">Amir M</h2>
+        <p>@amir · Online</p>
+      </div>
+      <div class="quick-actions">
+        <button><span>⌕</span> Search</button><button><span>◌</span> Call</button><button><span>⋮</span> More</button>
+      </div>
+      <div class="detail-section"><div class="section-title">Shared media <span>12</span></div><div class="media-grid"><div></div><div></div><div></div><div></div></div></div>
+      <div class="detail-section"><div class="section-title">Conversation</div><div class="setting-row"><span>Notifications</span><button class="toggle on" id="notifyToggle"><i></i></button></div><div class="setting-row"><span>Wallpaper</span><span class="chevron">›</span></div></div>
+    </aside>
+  </main>
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
