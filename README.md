@@ -1,51 +1,41 @@
 # SEAM CHAT 💜💚
 
-SEAM CHAT is a real-time private web messenger. The backend is Cloudflare-native: **Workers + D1 + Durable Objects**. There is no longer a Node.js/PostgreSQL server in the production architecture.
+SEAM CHAT is a real-time private web messenger. The frontend is hosted on Cloudflare, while the real backend runs on the owner's laptop with Node.js and WebSockets. This keeps the setup simple and avoids a Cloudflare-native backend.
 
-## Production core
+## Architecture
+
+```text
+Browser
+   │
+   ├── Cloudflare → static frontend
+   │
+   └── HTTPS/WSS → Cloudflare Tunnel → laptop
+                                      │
+                                   Node.js
+                                      │
+                              local JSON database
+```
+
+## Real features
 
 - Real account registration/login
-- Per-user password salt + server-side `PASSWORD_PEPPER`
-- PBKDF2-SHA-256 password derivation in the Workers runtime
-- 30-day server sessions stored as SHA-256 token hashes in D1
-- D1 persistence for users, sessions and messages
-- One-to-one message history with bounded pagination (50 default, 100 maximum)
-- Durable Objects for authenticated real-time WebSockets
-- WebSocket Hibernation-compatible architecture for persistent realtime connections
-- Sent / delivered / read timestamps
+- Per-user password salt + server-side pepper
+- PBKDF2-SHA-256 password hashing
+- Persistent sessions
+- Real one-to-one messages and history
+- Pagination for older messages
+- Delivered/read timestamps
 - Read receipts and unread counters
 - Online/offline presence
 - Live typing indicator
-- WebSocket reconnect with exponential backoff
-- Real user lookup for starting conversations
-- Duplicate message protection with optional client message IDs
+- WebSocket reconnect support in the frontend
+- Real user search and new-chat flow
+- Duplicate message protection
 - Logout and session invalidation
-- Edge-side rate limiting backed by Durable Object state
-- Security headers and configurable CORS allow-list
-- Health endpoint
+- API and message rate limiting
+- Security headers and configurable CORS
+- Health endpoint at `/health`
 - No seeded/demo accounts or fake messages
-
-## Cloudflare architecture
-
-```text
-                         Cloudflare
-                            │
-                   ┌────────┴────────┐
-                   │ Cloudflare      │
-                   │ Worker API      │
-                   └───────┬─────────┘
-                           │
-             ┌─────────────┼─────────────┐
-             │             │             │
-          REST API        D1       Durable Objects
-             │             │             │
-       auth/messages   users/sessions   WebSockets
-       presence/etc.     messages       presence
-                                         typing
-                                         realtime fanout
-```
-
-D1 is the source of truth for accounts, sessions and persisted messages. Durable Objects coordinate long-lived WebSocket connections, presence, typing and realtime fan-out. Cloudflare recommends Durable Objects for coordinated WebSocket applications, and its Hibernation API is designed for long-lived connections with lower idle runtime cost. citeturn0search0turn0search6
 
 ## Repository layout
 
@@ -56,103 +46,79 @@ D1 is the source of truth for accounts, sessions and persisted messages. Durable
 ├── styles.css
 ├── history.css
 ├── assets/
-├── cloudflare/
-│   ├── src/index.js
-│   ├── migrations/0001_initial.sql
-│   ├── wrangler.toml
+├── backend/
+│   ├── server.js
 │   ├── package.json
-│   └── .dev.vars.example
-└── .github/workflows/ci.yml
+│   ├── .env.example
+│   └── .gitignore
+└── START-SEAM-BACKEND.bat
 ```
 
-The old `backend/` Node/PostgreSQL implementation and Docker Compose stack have been removed so there is one backend architecture instead of two competing implementations.
+The previous Cloudflare Worker, D1, Durable Objects and Wrangler backend have been removed. Cloudflare is now used for the frontend only.
 
-## Cloudflare setup
+## Laptop setup
 
-### 1. Create the D1 database
+### 1. Install Node.js
 
-From `cloudflare/`:
+Install the current Node.js LTS release on Windows. Verify that `node` and `npm` are available.
 
-```bash
-npm install
-npx wrangler login
-npx wrangler d1 create seam-chat-db
+### 2. Get the repository
+
+Download/clone this repository onto the laptop. No Cloudflare CLI is required.
+
+### 3. Start the backend
+
+Double-click:
+
+```text
+START-SEAM-BACKEND.bat
 ```
 
-Cloudflare's current Wrangler flow creates the D1 database and returns the database ID used by the Worker binding. citeturn0search8
+The launcher installs dependencies the first time and starts the server on port `8787`.
 
-Copy the returned ID into `cloudflare/wrangler.toml` in place of `REPLACE_WITH_D1_DATABASE_ID`.
+The local health check is:
 
-### 2. Apply the schema
-
-```bash
-npx wrangler d1 migrations apply seam-chat-db --remote
+```text
+http://localhost:8787/health
 ```
 
-The schema is versioned in `cloudflare/migrations/`; Wrangler tracks applied migrations in D1. citeturn0search4
+### 4. Set a real password pepper
 
-### 3. Configure secrets
+Before real use, create an environment variable named `PASSWORD_PEPPER` with a long random secret. Do not commit the secret to GitHub.
 
-Set a strong random pepper as a Cloudflare Worker secret:
+The one-click launcher is intentionally simple for first setup. For production-like use, set `PASSWORD_PEPPER` as a Windows user/system environment variable before starting the launcher.
 
-```bash
-npx wrangler secret put PASSWORD_PEPPER
+### 5. Keep the laptop reachable
+
+For internet access, expose the backend through a Cloudflare Tunnel pointing at:
+
+```text
+http://localhost:8787
 ```
 
-For production, also set the exact frontend origin:
+Use the resulting HTTPS hostname as the frontend's `window.SEAM_API_BASE` value in `index.html`. The frontend automatically converts the `/ws` URL to `wss://` when the API hostname uses HTTPS.
 
-```bash
-npx wrangler secret put CORS_ORIGIN
+### 6. Keep Windows awake with the lid closed
+
+Set Windows' lid-close action to **Do nothing** while plugged in. The laptop must remain powered on and connected to the internet for the backend to remain available.
+
+## Data
+
+The laptop backend stores its persistent data in:
+
+```text
+backend/data/seam-chat.json
 ```
 
-Never commit the real pepper or other production secrets.
+That directory is intentionally ignored by Git. Back up this file if the laptop is the only copy of the chat data.
 
-### 4. Deploy
-
-```bash
-npx wrangler deploy
-```
-
-Wrangler is Cloudflare's CLI for managing Worker projects and deployments. citeturn0search9
-
-### 5. Connect the frontend
-
-If the Worker is routed on the same hostname as the frontend, the existing frontend can use its default `location.origin` API base.
-
-If the API is on a separate hostname, set this before `app.js` in `index.html`:
-
-```html
-<script>
-  window.SEAM_API_BASE = 'https://YOUR-API-HOSTNAME';
-</script>
-```
-
-The frontend already switches `ws://` to `wss://` automatically for the `/ws` endpoint.
-
-## Local development
-
-```bash
-cd cloudflare
-npm install
-cp .dev.vars.example .dev.vars
-npx wrangler d1 migrations apply seam-chat-db --local
-npx wrangler dev
-```
-
-Do not put production credentials in `.dev.vars` or commit that file.
-
-## CI
-
-GitHub Actions now validates the Cloudflare Worker bundle with Wrangler instead of starting PostgreSQL and the removed Node backend.
-
-## Important deployment note
-
-The repository now contains the complete Cloudflare-native backend implementation and configuration, but creating the actual D1 database and deploying the Worker requires access to your Cloudflare account. The repository intentionally contains a placeholder D1 ID rather than pretending a real Cloudflare resource was created.
+For a future production release, the same API can be moved to a VPS and the storage layer can be upgraded to PostgreSQL without redesigning the frontend API.
 
 ## Security notes
 
-- Passwords are never stored plaintext.
-- Session tokens are stored only as SHA-256 hashes in D1.
-- The browser currently carries the session token for API authentication and the WebSocket handshake. For a later hardening pass, this can be moved to an HttpOnly, Secure cookie/session flow.
-- CORS should be restricted to the exact frontend origin in production.
-- Attachments remain disabled until secure R2-backed file handling is intentionally added; the UI does not fake uploads.
+- Passwords are never stored in plaintext.
+- Session tokens are stored only as hashes on disk.
+- Never commit `PASSWORD_PEPPER` or `backend/data/`.
+- Keep the tunnel protected and use HTTPS/WSS publicly.
+- The current frontend uses bearer tokens in browser storage; moving authentication to secure HttpOnly cookies is a recommended future hardening step.
+- Attachments remain disabled until secure file storage is intentionally implemented; the UI does not fake uploads.
