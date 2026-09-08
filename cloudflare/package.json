@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:migrate": "wrangler d1 migrations apply seam-chat-db --remote"
+    "db:migrate": "wrangler d1 migrations apply my-seam-account --remote",
+    "db:list": "wrangler d1 migrations list my-seam-account --remote"
   },
   "devDependencies": {
     "wrangler": "^4.33.0"
